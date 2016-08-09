@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="stuff, to, help, search, engines, not" name="keywords">
+    <meta content="What this page is about." name="description">
+    <meta content="Display Webcam Stream" name="title">
+    <title>Display Webcam Stream</title>
+
+    <script type="text/javascript">
+        var video, canvas, context, imageData;
+
+        function onLoad() {
+            video = document.getElementById("video");
+            canvas = document.getElementById("canvas");
+            context = canvas.getContext("2d");
+
+            canvas.width = parseInt(canvas.style.width);
+            canvas.height = parseInt(canvas.style.height);
+
+            navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+            if (navigator.getUserMedia) {
+                navigator.getUserMedia({video: true}, handleVideo, handleError);
+                requestAnimationFrame(tick);
+            }
+        }
+
+        function handleVideo(stream) {
+            if (window.webkitURL) {
+                video.src = window.webkitURL.createObjectURL(stream);
+            } else if (video.mozSrcObject !== undefined) {
+                video.mozSrcObject = stream;
+            } else {
+                video.src = stream;
+            }
+        }
+
+        function handleError(error) {
+            console.log(error);
+        }
+
+        function tick() {
+            requestAnimationFrame(tick);
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                snapshot();
+            }
+        }
+
+        function snapshot() {
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        }
+
+        window.onload = onLoad;
+    </script>
+    <style>
+        #container {
+            margin: 0px auto;
+            width: 500px;
+            height: 375px;
+            border: 10px #333 solid;
+        }
+
+        #videoElement {
+            width: 500px;
+            height: 375px;
+            background-color: #666;
+        }
+    </style>
+</head>
+
+<body style="font-family: monospace;">
+<h1>Testing Webcam Video support</h1>
+
+<center>
+    <video id="video" autoplay="true" style="display:none;"></video>
+    <canvas id="canvas" style="width:640px; height:480px;"></canvas>
+
+</center>
+
+</body>
+</html>
